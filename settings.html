@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProTask | Cilësimet</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="todo.css">
+
+    <style>
+        /* Mbrojtja që faqja të mos shihet pa u verifikuar logini */
+        body { opacity: 0; transition: opacity 0.3s ease; }
+        body.auth-checked { opacity: 1; }
+    </style>
+
+    <script>
+        // MBROJTJA: Kontrolli i loginit para ngarkimit
+        if (!localStorage.getItem('proTaskUserName')) {
+            window.location.href = "index.html";
+        } else {
+            document.documentElement.classList.add('auth-checked');
+        }
+    </script>
+</head>
+<body class="bg-light">
+
+    <div class="main-wrapper d-flex">
+        <nav class="sidebar d-none d-lg-block">
+            <div class="p-4">
+                <div class="logo-area mb-5">
+                    <h4 class="fw-bold text-primary"><i class="fas fa-check-double me-2"></i>ProTask</h4>
+                </div>
+                <div class="nav-links">
+                    <a href="dashboard.html" class="nav-item mb-2"><i class="fas fa-home me-3"></i>Dashboard</a>
+                    <a href="todo.html" class="nav-item mb-2"><i class="fas fa-tasks me-3"></i>Detyrat</a>
+                    <a href="calendar.html" class="nav-item mb-2"><i class="fas fa-calendar-alt me-3"></i>Kalendari</a>
+                    <a href="settings.html" class="nav-item active mb-2"><i class="fas fa-cog me-3"></i>Cilësimet</a>
+                </div>
+            </div>
+            <div class="sidebar-footer p-4">
+                <button onclick="logout()" class="btn btn-outline-danger btn-sm w-100">
+                    <i class="fas fa-sign-out-alt me-2"></i>Dil
+                </button>
+            </div>
+        </nav>
+
+        <main class="content-area flex-grow-1 p-3 p-md-5">
+            <div class="container" style="max-width: 800px;">
+                <h2 class="fw-bold mb-4">Cilësimet</h2>
+
+                <div class="card border-0 shadow-sm p-4 rounded-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-user-circle me-2"></i>Profili</h5>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold">Emri yt</label>
+                            <input type="text" id="userNameInput" class="form-control" placeholder="Shkruaj emrin tënd...">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button onclick="saveProfile()" class="btn btn-primary w-100">Ruaj Emrin</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm p-4 rounded-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-paint-brush me-2"></i>Personalizimi</h5>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="mb-0">Dark Mode</h6>
+                            <small class="text-muted">Ndrysho temën e aplikacionit</small>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="darkModeSwitch" style="width: 50px; height: 25px; cursor: pointer;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm p-4 rounded-4 border-start border-danger border-4">
+                    <h5 class="fw-bold mb-3 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Zona e Rrezikut</h5>
+                    <p class="text-muted small">Këto veprime nuk mund të kthehen mbrapsht. Të gjitha detyrat dhe progresi juaj do të fshihen.</p>
+                    <button onclick="clearAllData()" class="btn btn-outline-danger">
+                        <i class="fas fa-trash-alt me-2"></i>Fshij të gjitha të dhënat
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Shfaq emrin aktual kur ngarkohet faqja
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentName = localStorage.getItem('proTaskUserName');
+            if (currentName) {
+                document.getElementById('userNameInput').value = currentName;
+            }
+            document.body.classList.add('auth-checked');
+        });
+
+        // Funksioni Logout
+        function logout() {
+            if(confirm("Dëshironi të dilni?")) {
+                localStorage.removeItem('proTaskUserName');
+                window.location.href = "index.html";
+            }
+        }
+    </script>
+    <script src="settings.js"></script>
+</body>
+</html>

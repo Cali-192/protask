@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProTask | Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="todo.css"> 
+
+    <style>
+        /* Mbrojtja që faqja të mos "shkrepë" para kontrollit */
+        body { opacity: 0; transition: opacity 0.3s ease; }
+        body.auth-checked { opacity: 1; }
+    </style>
+
+    <script>
+        // MBROJTJA: Kontrolli i loginit para ngarkimit të DOM
+        if (!localStorage.getItem('proTaskUserName')) {
+            window.location.href = "index.html";
+        } else {
+            document.documentElement.classList.add('auth-checked');
+        }
+    </script>
+</head>
+<body class="bg-light">
+
+    <div class="main-wrapper d-flex">
+        <nav class="sidebar d-none d-lg-block">
+            <div class="p-4">
+                <div class="logo-area mb-5">
+                    <h4 class="fw-bold text-primary"><i class="fas fa-check-double me-2"></i>ProTask</h4>
+                </div>
+                <div class="nav-links">
+                    <a href="dashboard.html" class="nav-item active mb-2"><i class="fas fa-home me-3"></i>Dashboard</a>
+                    <a href="todo.html" class="nav-item mb-2"><i class="fas fa-tasks me-3"></i>Detyrat</a>
+                    <a href="calendar.html" class="nav-item mb-2"><i class="fas fa-calendar-alt me-3"></i>Kalendari</a>
+                    <a href="settings.html" class="nav-item mb-2"><i class="fas fa-cog me-3"></i>Cilësimet</a>
+                </div>
+            </div>
+            <div class="sidebar-footer p-4">
+                <button onclick="logout()" class="btn btn-outline-danger btn-sm w-100">
+                    <i class="fas fa-sign-out-alt me-2"></i>Dil
+                </button>
+            </div>
+        </nav>
+
+        <main class="content-area flex-grow-1 p-3 p-md-5">
+            <div class="container" style="max-width: 1000px;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold mb-0">Përmbledhja e Punës, <span id="dashUser" class="text-primary text-capitalize">Përdorues</span>!</h2>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-primary text-white">
+                            <h6 class="text-white-50">Gjithsej Detyra</h6>
+                            <h2 id="totalTasks" class="fw-bold">0</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-success text-white">
+                            <h6 class="text-white-50">Të Përfunduara</h6>
+                            <h2 id="completedTasks" class="fw-bold">0</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white card-stats">
+                            <h6 class="text-muted">Efiçenca</h6>
+                            <h2 id="efficiency" class="fw-bold text-primary">0%</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white recent-card">
+                            <h5 class="fw-bold mb-4">Aktivitetet e Fundit</h5>
+                            <div id="recentActivityList">
+                                </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white category-card">
+                            <h5 class="fw-bold mb-4">Kategoritë</h5>
+                            <div id="categoryStats">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Vendos emrin e përdoruesit në titull
+        const userName = localStorage.getItem('proTaskUserName');
+        if (userName) {
+            document.getElementById('dashUser').textContent = userName;
+        }
+
+        // Funksioni Logout
+        function logout() {
+            if(confirm("Dëshironi të dilni nga sistemi?")) {
+                localStorage.removeItem('proTaskUserName');
+                window.location.href = "index.html";
+            }
+        }
+
+        // Dark Mode Check
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-theme');
+        }
+
+        document.body.classList.add('auth-checked');
+    </script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

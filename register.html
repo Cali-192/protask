@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProTask | Regjistrimi</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            background: linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%); 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+        }
+        .reg-card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px);
+            padding: 40px; 
+            border-radius: 24px; 
+            width: 100%; 
+            max-width: 400px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+            text-align: center;
+        }
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: #4361ee;
+            color: white;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+        }
+        .form-control { 
+            border-radius: 12px; 
+            padding: 12px 15px; 
+            border: 1px solid #eee; 
+            margin-bottom: 5px;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            border-color: #4361ee;
+        }
+        .btn-reg { 
+            background: #4361ee; 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 12px; 
+            width: 100%; 
+            font-weight: 600; 
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-reg:hover { 
+            background: #374fc7; 
+            transform: translateY(-2px); 
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="reg-card">
+        <div class="logo-icon">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h3 class="fw-bold mb-1">Krijo Llogari</h3>
+        <p class="text-muted mb-4">Filloni menaxhimin e detyrave sot</p>
+
+        <form id="registerForm">
+            <div class="text-start mb-3">
+                <label class="form-label small fw-bold">Emri i Plotë</label>
+                <input type="text" id="regName" class="form-control" placeholder="Filan Fisteku" required>
+            </div>
+            <div class="text-start mb-3">
+                <label class="form-label small fw-bold">Email (Gmail)</label>
+                <input type="email" id="regEmail" class="form-control" placeholder="emri@gmail.com" required>
+            </div>
+            <div class="text-start mb-3">
+                <label class="form-label small fw-bold">Fjalëkalimi</label>
+                <input type="password" id="regPass" class="form-control" placeholder="Min. 6 karaktere" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-reg shadow-sm">Regjistrohu</button>
+        </form>
+
+        <p class="text-center mt-4 small text-muted">
+            Keni llogari? <a href="index.html" class="text-primary text-decoration-none fw-bold">Hyni këtu</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPass').value;
+
+            // Merri përdoruesit ekzistues
+            let users = JSON.parse(localStorage.getItem('proTaskUsers')) || [];
+            
+            // Kontrollo nëse emaili ekziston
+            if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+                alert("Ky email është i regjistruar paraprakisht! Ju lutem përdorni një tjetër.");
+                return;
+            }
+
+            // Shto përdoruesin e ri
+            users.push({ name, email, pass });
+            localStorage.setItem('proTaskUsers', JSON.stringify(users));
+            
+            alert("Llogaria u krijua me sukses! Tani do të ridrejtoheni te faqja e hyrjes.");
+            window.location.href = "index.html";
+        });
+
+        // Siguria: Nëse është i loguar, mos e lejo të regjistrohet përsëri
+        if (localStorage.getItem('proTaskUserName')) {
+            window.location.href = "dashboard.html";
+        }
+    </script>
+</body>
+</html>

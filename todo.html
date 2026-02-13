@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProTask Ultimate | Menaxheri Profesional i Detyrave</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="todo.css">
+
+    <style>
+        /* Mbrojtja që faqja të mos shihet pa u verifikuar logini */
+        body { opacity: 0; transition: opacity 0.3s ease; }
+        body.auth-checked { opacity: 1; }
+        .bg-primary-soft { background-color: rgba(67, 97, 238, 0.1); }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="main-wrapper d-flex">
+        <nav class="sidebar d-none d-lg-block">
+            <div class="p-4">
+                <div class="logo-area mb-5">
+                    <h4 class="fw-bold text-primary"><i class="fas fa-check-double me-2"></i>ProTask</h4>
+                </div>
+                <div class="nav-links">
+                    <a href="dashboard.html" class="nav-item mb-2"><i class="fas fa-home me-3"></i>Dashboard</a>
+                    <a href="todo.html" class="nav-item active mb-2"><i class="fas fa-tasks me-3"></i>Detyrat</a>
+                    <a href="calendar.html" class="nav-item mb-2"><i class="fas fa-calendar-alt me-3"></i>Kalendari</a>
+                    <a href="settings.html" class="nav-item mb-2"><i class="fas fa-cog me-3"></i>Cilësimet</a>
+                </div>
+            </div>
+            <div class="sidebar-footer p-4">
+                <button onclick="logout()" class="btn btn-outline-danger btn-sm w-100">
+                    <i class="fas fa-sign-out-alt me-2"></i>Dil
+                </button>
+            </div>
+        </nav>
+
+        <main class="content-area flex-grow-1 p-3 p-md-5">
+            <div class="app-container mx-auto" style="max-width: 900px;">
+                
+                <header class="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                    <div>
+                        <h2 class="fw-bold text-dark mb-1" id="welcomeUser">Misionet e Ditës <span class="badge bg-primary-soft text-primary ms-2" id="taskCount">0</span></h2>
+                        <p id="dateDisplay" class="text-secondary small mb-0 font-monospace"></p>
+                    </div>
+                    
+                    <div class="progress-container d-flex align-items-center mt-3 mt-md-0">
+                        <div class="me-3 text-end">
+                            <span class="d-block small text-muted">Progresi i Ditës</span>
+                            <strong id="progressText" class="text-primary">0%</strong>
+                        </div>
+                        <div class="circular-progress">
+                            <svg viewBox="0 0 36 36" class="circular-chart blue">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path id="progressCircle" class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="input-card shadow-lg border-0 mb-5 p-4 bg-white rounded-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Çfarë është në fokus sot?</label>
+                            <input type="text" id="taskInput" class="form-control form-control-lg border-0 bg-light" placeholder="Shkruaj detyrën tënde këtu...">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold text-muted">Koha & Data</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-0 bg-light"><i class="far fa-clock text-primary"></i></span>
+                                <input type="datetime-local" id="timeInput" class="form-control border-0 bg-light">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Kategoria</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-0 bg-light"><i class="fas fa-tags text-primary"></i></span>
+                                <select id="categoryInput" class="form-select border-0 bg-light">
+                                    <option value="💼 Punë">Puna</option>
+                                    <option value="👤 Personale">Personale</option>
+                                    <option value="🔥 Urgjente">Urgjente</option>
+                                    <option value="🏋️ Fitness">Fitness</option>
+                                    <option value="📚 Studime">Studime</option>
+                                    <option value="🍎 Shëndeti">Shëndeti</option>
+                                    <option value="🛒 Shopping">Shopping</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button id="addBtn" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-plus me-2"></i>Shto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+               <div class="d-flex justify-content-center justify-content-md-start gap-2 mb-4">
+    <button class="filter-btn active" data-filter="all">Të gjitha</button>
+    <button class="filter-btn" data-filter="active">Aktive</button>
+    <button class="filter-btn" data-filter="completed">Kryer</button>
+</div>
+                    
+                    <div class="search-box position-relative">
+                        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" id="searchInput" class="form-control ps-5 border-0 shadow-sm rounded-3" placeholder="Kërko detyrat...">
+                    </div>
+                </div>
+
+                <div id="taskList" class="task-list-grid">
+                    <div class="text-center py-5" id="emptyState">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5089/5089733.png" alt="Empty" style="width: 80px; opacity: 0.5;">
+                        <p class="text-muted mt-3">Nuk ka asnjë detyrë për momentin. Shto njërën më sipër!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        // Kontrolli i menjëhershëm i loginit para se të ngarkohet todo.js
+        if (!localStorage.getItem('proTaskUserName')) {
+            window.location.href = "index.html";
+        } else {
+            document.body.classList.add('auth-checked');
+        }
+    </script>
+    <script src="todo.js"></script>
+</body>
+</html>
