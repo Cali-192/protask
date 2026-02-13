@@ -45,7 +45,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 3. Inicializo Kalendarin
     if (calendarEl) {
         const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
+            // RREGULLIMI: Nëse ekrani është i vogël (Mobile), hape si LISTË, përndryshe si MUJA
+            initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth',
+            
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -59,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
                       "\n📂 Kategoria: " + info.event.extendedProps.category +
                       "\n📊 Statusi: " + status);
             },
-            // Përshtatja për pajisje mobile
+            // Përshtatja automatike nëse rrotullon telefonin ose ndryshon madhësinë e dritares
             windowResize: function(view) {
                 if (window.innerWidth < 768) {
                     calendar.changeView('listMonth');
