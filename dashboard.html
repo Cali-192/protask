@@ -9,13 +9,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="todo.css"> 
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#4361ee">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
     <style>
         /* Mbrojtja që faqja të mos "shkrepë" para kontrollit */
         body { opacity: 0; transition: opacity 0.3s ease; }
         body.auth-checked { opacity: 1; }
+
+        /* Stilimi për Menunë e Poshtme në Telefon */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            z-index: 1000;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .mobile-nav a, .mobile-nav btn-logout {
+            color: #888;
+            text-decoration: none;
+            font-size: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+        }
+        .mobile-nav a.active {
+            color: #4361ee;
+        }
+        .mobile-nav i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Shto hapësirë në fund që përmbajtja mos të mbulohet nga menuja */
+        @media (max-width: 991px) {
+            body { padding-bottom: 80px; }
+            .content-area { padding-top: 20px !important; }
+        }
     </style>
 
     <script>
@@ -28,6 +66,25 @@
     </script>
 </head>
 <body class="bg-light">
+
+    <div class="mobile-nav d-lg-none">
+        <a href="dashboard.html" class="active">
+            <i class="fas fa-home"></i>
+            <span>Kreu</span>
+        </a>
+        <a href="todo.html">
+            <i class="fas fa-tasks"></i>
+            <span>Detyrat</span>
+        </a>
+        <a href="calendar.html">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Kalendari</span>
+        </a>
+        <a href="#" onclick="logout()" class="text-danger">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Dil</span>
+        </a>
+    </div>
 
     <div class="main-wrapper d-flex">
         <nav class="sidebar d-none d-lg-block">
@@ -52,7 +109,7 @@
         <main class="content-area flex-grow-1 p-3 p-md-5">
             <div class="container" style="max-width: 1000px;">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold mb-0">Përmbledhja e Punës, <span id="dashUser" class="text-primary text-capitalize">Përdorues</span>!</h2>
+                    <h2 class="fw-bold mb-0">Përmbledhja, <span id="dashUser" class="text-primary text-capitalize">Përdorues</span>!</h2>
                 </div>
 
                 <div class="row g-4 mb-5">
@@ -80,16 +137,14 @@
                     <div class="col-lg-8">
                         <div class="card border-0 shadow-sm p-4 rounded-4 bg-white recent-card">
                             <h5 class="fw-bold mb-4">Aktivitetet e Fundit</h5>
-                            <div id="recentActivityList">
-                                </div>
+                            <div id="recentActivityList"></div>
                         </div>
                     </div>
                     
                     <div class="col-lg-4">
                         <div class="card border-0 shadow-sm p-4 rounded-4 bg-white category-card">
                             <h5 class="fw-bold mb-4">Kategoritë</h5>
-                            <div id="categoryStats">
-                                </div>
+                            <div id="categoryStats"></div>
                         </div>
                     </div>
                 </div>
