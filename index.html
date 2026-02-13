@@ -2,31 +2,41 @@
 <html lang="sq">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ProTask | Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%);
-            height: 100vh;
+            /* Rregullimi për qendërzim në mobile */
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0;
+            padding: 20px; /* Hapësirë që kutia mos të prekë bordet e telefonit */
         }
+        
         .login-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 24px;
             padding: 40px;
             width: 100%;
-            max-width: 400px;
+            /* Gjerësia elastike për telefon */
+            max-width: 400px; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             text-align: center;
+            /* Siguron që kutia të mos zgjatet jashtë mase */
+            margin: auto;
         }
+
         .logo-icon {
             width: 70px;
             height: 70px;
@@ -40,12 +50,15 @@
             margin: 0 auto 20px;
             box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
         }
+
         .form-control {
             border-radius: 12px;
             padding: 12px 15px;
             border: 1px solid #eee;
             margin-bottom: 20px;
+            font-size: 16px; /* Parandalon auto-zoom në iPhone */
         }
+
         .btn-login {
             background: #4361ee;
             color: white;
@@ -56,9 +69,17 @@
             font-weight: 600;
             transition: 0.3s;
         }
+
         .btn-login:hover {
             background: #374fc7;
             transform: translateY(-2px);
+        }
+
+        /* Rregullim shtesë për ekrane shumë të vegjël */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
