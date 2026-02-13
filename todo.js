@@ -43,9 +43,10 @@ function init() {
 // Përshëndetja e përdoruesit
 function greetUser() {
     const user = localStorage.getItem('proTaskUserName') || 'Përdorues';
-    const welcomeHeader = document.querySelector('h2');
-    if (welcomeHeader) {
-        welcomeHeader.innerText = `Mirësevjen, ${user}!`;
+    const welcomeUserElem = document.getElementById('welcomeUser');
+    if (welcomeUserElem) {
+        // Përdorim innerHTML për të mbajtur badge-in e taskCount nëse është brenda h2
+        welcomeUserElem.innerHTML = `Mirësevjen, ${user}! <span class="badge bg-primary-soft text-primary ms-2" id="taskCount">${tasks.length}</span>`;
     }
 }
 
@@ -59,37 +60,40 @@ function updateDate() {
 }
 
 // 3. SHTIMI I NJË DETYRE TË RE
-document.getElementById('addBtn').addEventListener('click', () => {
-    const textInput = document.getElementById('taskInput');
-    const timeInput = document.getElementById('timeInput');
-    const catInput = document.getElementById('categoryInput');
+const addBtn = document.getElementById('addBtn');
+if (addBtn) {
+    addBtn.addEventListener('click', () => {
+        const textInput = document.getElementById('taskInput');
+        const timeInput = document.getElementById('timeInput');
+        const catInput = document.getElementById('categoryInput');
 
-    const text = textInput.value.trim();
-    const time = timeInput.value;
-    const cat = catInput.value;
+        const text = textInput.value.trim();
+        const time = timeInput.value;
+        const cat = catInput.value;
 
-    if (!text || !time) {
-        alert("Ju lutem plotësoni detyrën dhe orarin!");
-        return;
-    }
+        if (!text || !time) {
+            alert("Ju lutem plotësoni detyrën dhe orarin!");
+            return;
+        }
 
-    const newTask = {
-        id: Date.now(),
-        text: text,
-        time: time,
-        category: cat,
-        completed: false,
-        notified: false
-    };
+        const newTask = {
+            id: Date.now(),
+            text: text,
+            time: time,
+            category: cat,
+            completed: false,
+            notified: false
+        };
 
-    tasks.push(newTask);
-    saveAndRefresh();
-    
-    // Pastro fushat
-    textInput.value = "";
-    timeInput.value = "";
-    textInput.focus();
-});
+        tasks.push(newTask);
+        saveAndRefresh();
+        
+        // Pastro fushat
+        textInput.value = "";
+        timeInput.value = "";
+        textInput.focus();
+    });
+}
 
 // 4. LOGJIKA E PROGRESIT
 function updateProgress() {
@@ -133,14 +137,14 @@ function renderTasks(filter = 'all', searchTerm = '') {
         div.className = `task-item ${t.completed ? 'completed' : ''}`;
         
         // Përcaktimi i stilit sipas kategorisë
-        let catClass = "category-personal";
+        let catClass = "bg-info text-white"; 
         let catIcon = '<i class="fas fa-user me-1"></i>';
 
         if (t.category.includes("Urgjente")) {
-            catClass = "category-urgent"; 
+            catClass = "bg-danger text-white"; 
             catIcon = '<i class="fas fa-exclamation-circle me-1"></i>';
         } else if (t.category.includes("Punë")) {
-            catClass = "category-work";
+            catClass = "bg-primary text-white";
             catIcon = '<i class="fas fa-briefcase me-1"></i>';
         } else if (t.category.includes("Fitness")) {
             catClass = "bg-warning text-dark";
@@ -225,7 +229,7 @@ function triggerAlarm(task) {
     saveAndRefresh();
     
     if (alarmSound) {
-        alarmSound.play().catch(() => console.log("Audio bllokuar nga browser-i deri në ndërveprimin e parë"));
+        alarmSound.play().catch(() => console.log("Audio bllokuar nga browser-i"));
     }
 
     if (Notification.permission === "granted") {
@@ -236,7 +240,7 @@ function triggerAlarm(task) {
     }
 }
 
-// 8. FILTRAT (Me dëgjues të përmirësuar)
+// 8. FILTRAT
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -250,7 +254,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 function saveAndRefresh() {
     localStorage.setItem('proTasksV2', JSON.stringify(tasks));
     
-    // Gjejmë filtrin aktiv nga butonat e rinj
     const activeBtn = document.querySelector('.filter-btn.active');
     const activeFilter = activeBtn ? activeBtn.dataset.filter : 'all';
     
@@ -271,3 +274,16 @@ function logout() {
 
 // Nis aplikacionin
 init();
+
+// ==========================================
+// REGJISTRIMI I PWA (Service Worker)
+// ==========================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      console.log('ProTask Service Worker u regjistrua!', reg);
+    }).catch(err => {
+      console.log('Dështoi regjistrimi i SW', err);
+    });
+  });
+}
