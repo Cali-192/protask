@@ -28,6 +28,12 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Fix për titujt që të ndjekin temën */
+h2, .h2, h3, .h3, h4, .h4, .form-label {
+    color: var(--text-main);
+    transition: color 0.3s ease;
+}
+
 /* ==========================================
    SIDEBAR STYLING
    ========================================== */
@@ -124,6 +130,8 @@ body {
     font-size: 0.95rem;
     border-radius: 12px;
     border: 1px solid #edf2f7;
+    background-color: #ffffff;
+    color: #2b2d42;
     transition: var(--transition);
 }
 
@@ -228,10 +236,22 @@ body {
 }
 
 /* ==========================================
-   DARK THEME OVERRIDES
+   DARK THEME OVERRIDES (RREGULLUAR)
    ========================================== */
 body.dark-theme {
     background-color: #0b0f1a !important;
+    --text-main: #ffffff;
+    --text-muted: #a0aec0;
+    --bg-main: #0b0f1a;
+    --card-bg: #172035;
+    --sidebar-bg: #172035;
+}
+
+body.dark-theme h2, 
+body.dark-theme h3, 
+body.dark-theme h4, 
+body.dark-theme .form-label,
+body.dark-theme .nav-link-mobile span {
     color: #ffffff !important;
 }
 
@@ -241,7 +261,8 @@ body.dark-theme .task-item,
 body.dark-theme .modal-content,
 body.dark-theme .filter-btn,
 body.dark-theme .mobile-header,
-body.dark-theme .mobile-nav {
+body.dark-theme .mobile-nav,
+body.dark-theme .fc {
     background-color: #172035 !important;
     color: #ffffff !important;
     border-color: rgba(255,255,255,0.05) !important;
@@ -250,8 +271,13 @@ body.dark-theme .mobile-nav {
 body.dark-theme .form-control, 
 body.dark-theme .form-select {
     background-color: #1e293b !important;
-    color: white !important;
+    color: #ffffff !important;
     border: 1px solid #334155 !important;
+}
+
+/* Fix për placeholder në dark mode */
+body.dark-theme .form-control::placeholder {
+    color: #64748b !important;
 }
 
 body.dark-theme .text-muted {
@@ -272,6 +298,10 @@ body.dark-theme .filter-btn.active {
     color: white !important;
 }
 
+/* Dark Mode fixes për Kalendarin */
+body.dark-theme .fc-list-event:hover td { background-color: rgba(255,255,255,0.05) !important; }
+body.dark-theme .fc-list-day-cushion { background-color: #1e293b !important; }
+
 /* ==========================================
    ANIMATIONS & RESPONSIVE (MOBILE FIXES)
    ========================================== */
@@ -285,7 +315,7 @@ body.dark-theme .filter-btn.active {
     
     .content-area { 
         padding: 15px !important; 
-        padding-bottom: 90px !important; /* Hapësirë për menunë e poshtme */
+        padding-bottom: 90px !important; 
     }
 
     .task-item { padding: 15px; }
@@ -329,7 +359,7 @@ body.dark-theme .filter-btn.active {
         border-top: 1px solid rgba(0,0,0,0.05);
         z-index: 2000;
         box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-        padding-bottom: 10px; /* Hapësirë për vijën e iPhone */
+        padding-bottom: 10px; 
     }
 
     .nav-link-mobile {
@@ -349,6 +379,30 @@ body.dark-theme .filter-btn.active {
 
     .nav-link-mobile.active {
         color: var(--primary);
+    }
+
+    /* FIX PËR KALENDARIN MOBILE */
+    .fc-col-header-cell-cushion {
+        font-size: 10px !important;
+        display: block !important;
+        padding: 2px 0 !important;
+    }
+
+    .fc-timegrid-slot-label-cushion {
+        font-size: 10px !important;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1.1rem !important;
+    }
+
+    .fc-button {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+    }
+
+    .fc-toolbar {
+        gap: 5px;
     }
 }
 
