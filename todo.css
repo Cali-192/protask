@@ -72,12 +72,15 @@ body {
    ========================================== */
 .content-area {
     min-height: 100vh;
+    width: 100%;
 }
 
 .card {
     background: var(--card-bg);
     border-radius: var(--border-radius);
     transition: var(--transition);
+    border: none;
+    box-shadow: var(--shadow);
 }
 
 /* Circular Progress */
@@ -134,7 +137,7 @@ body {
    ========================================== */
 .task-item {
     background: var(--card-bg);
-    padding: 20px;
+    padding: 18px;
     border-radius: var(--border-radius);
     margin-bottom: 15px;
     display: flex;
@@ -147,7 +150,7 @@ body {
 }
 
 .task-item:hover {
-    transform: scale(1.02);
+    transform: scale(1.01);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
@@ -159,6 +162,10 @@ body {
 .task-item.completed .task-text {
     text-decoration: line-through;
     color: var(--text-muted);
+}
+
+.task-text {
+    word-break: break-word;
 }
 
 /* Custom Checkbox */
@@ -193,16 +200,31 @@ body {
 }
 
 /* ==========================================
-   ANIMATIONS & RESPONSIVE
+   FILTRA PROFESIONALË
    ========================================== */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.filter-btn {
+    border: 2px solid transparent;
+    background: #ffffff;
+    padding: 8px 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    white-space: nowrap;
 }
 
-@media (max-width: 768px) {
-    .sidebar { display: none; }
-    .content-area { padding: 20px !important; }
+.filter-btn:hover {
+    background: var(--primary-soft);
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white !important;
+    box-shadow: 0 8px 15px rgba(67, 97, 238, 0.25);
 }
 
 /* ==========================================
@@ -216,7 +238,10 @@ body.dark-theme {
 body.dark-theme .card, 
 body.dark-theme .sidebar, 
 body.dark-theme .task-item,
-body.dark-theme .modal-content {
+body.dark-theme .modal-content,
+body.dark-theme .filter-btn,
+body.dark-theme .mobile-header,
+body.dark-theme .mobile-nav {
     background-color: #172035 !important;
     color: #ffffff !important;
     border-color: rgba(255,255,255,0.05) !important;
@@ -242,43 +267,102 @@ body.dark-theme .circle-bg {
     stroke: #2d3748;
 }
 
+body.dark-theme .filter-btn.active {
+    background: var(--primary) !important;
+    color: white !important;
+}
+
+/* ==========================================
+   ANIMATIONS & RESPONSIVE (MOBILE FIXES)
+   ========================================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .sidebar { display: none !important; }
+    
+    .content-area { 
+        padding: 15px !important; 
+        padding-bottom: 90px !important; /* Hapësirë për menunë e poshtme */
+    }
+
+    .task-item { padding: 15px; }
+    .filter-btn { padding: 8px 12px; font-size: 0.75rem; }
+    h2 { font-size: 1.5rem; }
+
+    /* MOBILE HEADER */
+    .mobile-header {
+        position: sticky;
+        top: 0;
+        background: var(--sidebar-bg);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        z-index: 1050;
+        height: 60px;
+    }
+
+    .btn-logout-mobile {
+        background: var(--danger);
+        color: white;
+        border: none;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(239, 35, 60, 0.2);
+    }
+
+    /* BOTTOM NAVIGATION */
+    .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 75px;
+        background: var(--sidebar-bg);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        z-index: 2000;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        padding-bottom: 10px; /* Hapësirë për vijën e iPhone */
+    }
+
+    .nav-link-mobile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: var(--text-muted);
+        text-decoration: none !important;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .nav-link-mobile i {
+        font-size: 1.3rem;
+        margin-bottom: 4px;
+    }
+
+    .nav-link-mobile.active {
+        color: var(--primary);
+    }
+}
+
+/* Për pajisje shumë të vogla */
+@media (max-width: 480px) {
+    .filter-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 5px;
+    }
+}
+
 /* Scrollbar Customization */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
-/* Filtra Profesionalë */
-.filter-btn {
-    border: 2px solid transparent;
-    background: #ffffff;
-    padding: 8px 20px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    border-radius: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-}
-
-.filter-btn:hover {
-    background: var(--primary-soft);
-    color: var(--primary);
-    transform: translateY(-2px);
-}
-
-.filter-btn.active {
-    background: var(--primary);
-    color: white !important;
-    box-shadow: 0 8px 15px rgba(67, 97, 238, 0.25);
-}
-
-/* Përshtatja për Dark Mode */
-body.dark-theme .filter-btn {
-    background: #1e293b;
-    color: #a0aec0;
-}
-
-body.dark-theme .filter-btn.active {
-    background: var(--primary);
-    color: white !important;
-}
