@@ -26,7 +26,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: white;
+            background: var(--sidebar-bg, white);
             display: flex;
             justify-content: space-around;
             padding: 12px 0;
@@ -54,7 +54,7 @@
 
         /* Hapësirë në fund që të mos mbulohen detyrat nga menuja */
         @media (max-width: 767px) {
-            body { padding-bottom: 90px; }
+            body { padding-bottom: 100px; }
             .content-area { padding-top: 10px !important; }
         }
 
@@ -71,6 +71,9 @@
             justify-content: center;
             transition: 0.2s;
         }
+
+        /* Klasa për kategorinë Namazi që të duket mirë */
+        .bg-namazi { background-color: #1a202c !important; color: white !important; }
     </style>
 </head>
 <body class="bg-light">
@@ -109,7 +112,7 @@
                 
                 <header class="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
                     <div>
-                        <h2 class="fw-bold text-dark mb-1" id="welcomeUser">Misionet e Ditës <span class="badge bg-primary-soft text-primary ms-2" id="taskCount">0</span></h2>
+                        <h2 class="fw-bold text-dark mb-1" id="welcomeUser">Misionet e Ditës</h2>
                         <p id="dateDisplay" class="text-secondary small mb-0 font-monospace"></p>
                     </div>
                     
@@ -128,6 +131,8 @@
                 </header>
 
                 <div class="input-card shadow-lg border-0 mb-5 p-4 bg-white rounded-4">
+                    <input type="hidden" id="editTaskId" value="">
+                    
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label small fw-bold text-uppercase text-muted">Çfarë është në fokus sot?</label>
@@ -149,6 +154,7 @@
                                     <option value="👤 Personale">Personale</option>
                                     <option value="🔥 Urgjente">Urgjente</option>
                                     <option value="🏋️ Fitness">Fitness</option>
+                                    <option value="🕌 Namazi">Namazi</option> 
                                     <option value="📚 Studime">Studime</option>
                                     <option value="🍎 Shëndeti">Shëndeti</option>
                                     <option value="🛒 Shopping">Shopping</option>
@@ -163,7 +169,7 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-center justify-content-md-start gap-2 mb-4">
+                <div class="d-flex justify-content-center justify-content-md-start gap-2 mb-4 overflow-x-auto pb-2">
                     <button class="filter-btn active" data-filter="all">Të gjitha</button>
                     <button class="filter-btn" data-filter="active">Aktive</button>
                     <button class="filter-btn" data-filter="completed">Kryer</button>
@@ -209,17 +215,27 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     
     <script>
-        // MBROJTJA: Kontrolli i loginit
-        if (!localStorage.getItem('proTaskUserName')) {
-            window.location.href = "index.html";
-        } else {
+        // MBROJTJA: Kontrolli i loginit dhe Dark Mode para ngarkimit
+        (function() {
+            if (!localStorage.getItem('proTaskUserName')) {
+                window.location.href = "index.html";
+            } else {
+                document.documentElement.classList.add('auth-checked'); // Përdorim documentElement për shpejtësi
+                if (localStorage.getItem('darkMode') === 'enabled') {
+                    document.body.classList.add('dark-theme');
+                }
+            }
+        })();
+
+        window.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('auth-checked');
-        }
+        });
 
         // Funksioni Logout
         function logout() {
             if(confirm("Dëshironi të dilni?")) {
                 localStorage.removeItem('proTaskUserName');
+                localStorage.removeItem('proTaskUserEmail');
                 window.location.href = "index.html";
             }
         }
