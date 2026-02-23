@@ -26,8 +26,8 @@ function init() {
     updateDate();
     greetUser(); 
     
-    // Kontrolli i Reminders çdo 10 sekonda
-    setInterval(checkReminders, 10000);
+    // Kontrolli i Reminders çdo sekondë për saktësi maksimale (e rregulluar nga 10s)
+    setInterval(checkReminders, 1000);
 
     // Dëgjuesi për tastin Enter në input
     const taskInput = document.getElementById('taskInput');
@@ -45,7 +45,7 @@ function greetUser() {
     const user = localStorage.getItem('proTaskUserName') || 'Përdorues';
     const welcomeUserElem = document.getElementById('welcomeUser');
     if (welcomeUserElem) {
-        // Përdorim innerHTML për të mbajtur badge-in e taskCount nëse është brenda h2
+        // Përdorim innerHTML për të mbajtur badge-in e taskCount
         welcomeUserElem.innerHTML = `Mirësevjen, ${user}! <span class="badge bg-primary-soft text-primary ms-2" id="taskCount">${tasks.length}</span>`;
     }
 }
@@ -59,13 +59,14 @@ function updateDate() {
     }
 }
 
-// 3. SHTIMI I NJË DETYRE TË RE
+// 3. SHTIMI DHE EDITIMI I NJË DETYRE
 const addBtn = document.getElementById('addBtn');
 if (addBtn) {
     addBtn.addEventListener('click', () => {
         const textInput = document.getElementById('taskInput');
         const timeInput = document.getElementById('timeInput');
         const catInput = document.getElementById('categoryInput');
+        const editIdInput = document.getElementById('editTaskId'); // Fusha e fshehtë nga HTML
 
         const text = textInput.value.trim();
         const time = timeInput.value;
@@ -76,16 +77,26 @@ if (addBtn) {
             return;
         }
 
-        const newTask = {
-            id: Date.now(),
-            text: text,
-            time: time,
-            category: cat,
-            completed: false,
-            notified: false
-        };
+        if (editIdInput && editIdInput.value) {
+            // LOGJIKA E PËRDITËSIMIT (EDIT)
+            tasks = tasks.map(t => t.id == editIdInput.value ? { 
+                ...t, text: text, time: time, category: cat, notified: false 
+            } : t);
+            editIdInput.value = "";
+            addBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Shto';
+        } else {
+            // LOGJIKA E SHTIMIT TË RI
+            const newTask = {
+                id: Date.now(),
+                text: text,
+                time: time,
+                category: cat,
+                completed: false,
+                notified: false
+            };
+            tasks.push(newTask);
+        }
 
-        tasks.push(newTask);
         saveAndRefresh();
         
         // Pastro fushat
@@ -93,6 +104,23 @@ if (addBtn) {
         timeInput.value = "";
         textInput.focus();
     });
+}
+
+// FUNKSIONI I EDITIMIT (Plotëson formën)
+function editTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    document.getElementById('taskInput').value = task.text;
+    document.getElementById('timeInput').value = task.time;
+    document.getElementById('categoryInput').value = task.category;
+    document.getElementById('editTaskId').value = task.id;
+
+    const addBtn = document.getElementById('addBtn');
+    addBtn.innerHTML = '<i class="fas fa-save me-2"></i>Përditëso';
+    
+    document.getElementById('taskInput').focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // 4. LOGJIKA E PROGRESIT
@@ -132,6 +160,9 @@ function renderTasks(filter = 'all', searchTerm = '') {
         if (emptyState) emptyState.style.display = "none";
     }
 
+    // Renditja sipas kohës
+    filteredTasks.sort((a, b) => new Date(a.time) - new Date(b.time));
+
     filteredTasks.forEach(t => {
         const div = document.createElement('div');
         div.className = `task-item ${t.completed ? 'completed' : ''}`;
@@ -149,6 +180,9 @@ function renderTasks(filter = 'all', searchTerm = '') {
         } else if (t.category.includes("Fitness")) {
             catClass = "bg-warning text-dark";
             catIcon = '<i class="fas fa-dumbbell me-1"></i>';
+        } else if (t.category.includes("Namazi")) {
+            catClass = "bg-dark text-white";
+            catIcon = '<i class="fas fa-mosque me-1"></i>';
         }
 
         div.innerHTML = `
@@ -166,7 +200,10 @@ function renderTasks(filter = 'all', searchTerm = '') {
                     </div>
                 </div>
             </div>
-            <div class="actions">
+            <div class="actions d-flex gap-2">
+                <button class="btn btn-link text-primary p-0" onclick="editTask(${t.id})">
+                    <i class="fas fa-edit"></i>
+                </button>
                 <button class="btn btn-link text-danger p-0" onclick="deleteTask(${t.id})">
                     <i class="fas fa-trash-alt"></i>
                 </button>
@@ -213,12 +250,18 @@ if (searchInput) {
     });
 }
 
-// 7. REMINDERS DHE ALARMET
+// 7. REMINDERS DHE ALARMET (Rregulluar për saktësi sekondash)
 function checkReminders() {
-    const now = new Date().getTime();
+    const now = new Date();
+    // Formatimi për krahasim: YYYY-MM-DDTHH:MM
+    const currentStr = now.getFullYear() + "-" + 
+        String(now.getMonth() + 1).padStart(2, '0') + "-" + 
+        String(now.getDate()).padStart(2, '0') + "T" + 
+        String(now.getHours()).padStart(2, '0') + ":" + 
+        String(now.getMinutes()).padStart(2, '0');
+
     tasks.forEach(t => {
-        const tTime = new Date(t.time).getTime();
-        if (!t.completed && !t.notified && tTime <= now) {
+        if (!t.completed && !t.notified && t.time === currentStr) {
             triggerAlarm(t);
         }
     });
@@ -229,12 +272,13 @@ function triggerAlarm(task) {
     saveAndRefresh();
     
     if (alarmSound) {
+        alarmSound.currentTime = 0; // Rifillo nga fillimi
         alarmSound.play().catch(() => console.log("Audio bllokuar nga browser-i"));
     }
 
     if (Notification.permission === "granted") {
-        new Notification("ProTask: Koha për veprim!", {
-            body: `Detyra: ${task.text}`,
+        new Notification("ProTask: Koha për " + task.text, {
+            body: `Misioni: ${task.text} - Stay Hard!`,
             icon: "https://cdn-icons-png.flaticon.com/512/2098/2098402.png"
         });
     }
@@ -261,6 +305,7 @@ function saveAndRefresh() {
     
     renderTasks(activeFilter, sInput ? sInput.value : '');
     updateProgress();
+    greetUser(); // Rifreskon numrin te badge-i
 }
 
 // 10. FUNKSIONI LOGOUT
