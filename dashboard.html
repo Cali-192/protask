@@ -12,10 +12,32 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#4361ee">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
+    
     <style>
         /* Mbrojtja që faqja të mos "shkrepë" para kontrollit */
-        body { opacity: 0; transition: opacity 0.3s ease; }
+        body { opacity: 0; transition: opacity 0.3s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
         body.auth-checked { opacity: 1; }
+
+        /* Rregullimi për Dark Mode në Dashboard */
+        body.dark-theme {
+            background-color: #0b0f1a !important;
+            color: #ffffff !important;
+        }
+        body.dark-theme .card:not(.bg-primary):not(.bg-success) {
+            background-color: #172035 !important;
+            border-color: rgba(255,255,255,0.1) !important;
+            color: white !important;
+        }
+        body.dark-theme .text-muted, body.dark-theme .text-white-50 {
+            color: #a0aec0 !important;
+        }
+        body.dark-theme .sidebar {
+            background-color: #172035 !important;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        body.dark-theme .bg-light {
+            background-color: rgba(255,255,255,0.05) !important;
+        }
 
         /* Stilimi për Menunë e Poshtme në Telefon */
         .mobile-nav {
@@ -32,14 +54,20 @@
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
         }
-        .mobile-nav a, .mobile-nav btn-logout {
+        
+        body.dark-theme .mobile-nav {
+            background: #172035;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mobile-nav a {
             color: #888;
             text-decoration: none;
-            font-size: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             font-size: 12px;
+            transition: 0.3s;
         }
         .mobile-nav a.active {
             color: #4361ee;
@@ -49,19 +77,33 @@
             margin-bottom: 4px;
         }
 
-        /* Shto hapësirë në fund që përmbajtja mos të mbulohet nga menuja */
+        .card-stats {
+            transition: transform 0.3s ease;
+        }
+        .card-stats:hover {
+            transform: translateY(-5px);
+        }
+
         @media (max-width: 991px) {
             body { padding-bottom: 80px; }
             .content-area { padding-top: 20px !important; }
         }
+
+        /* Custom scrollbar për Dark Mode */
+        body.dark-theme::-webkit-scrollbar { width: 8px; }
+        body.dark-theme::-webkit-scrollbar-track { background: #0b0f1a; }
+        body.dark-theme::-webkit-scrollbar-thumb { background: #172035; border-radius: 10px; }
     </style>
 
     <script>
-        // MBROJTJA: Kontrolli i loginit para ngarkimit të DOM
+        // 1. MBROJTJA: Kontrolli i loginit para ngarkimit të DOM
         if (!localStorage.getItem('proTaskUserName')) {
             window.location.href = "index.html";
-        } else {
-            document.documentElement.classList.add('auth-checked');
+        }
+
+        // 2. DARK MODE: Aktivizimi i menjëhershëm në nivel dokumenti
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.documentElement.classList.add('dark-theme');
         }
     </script>
 </head>
@@ -101,50 +143,73 @@
             </div>
             <div class="sidebar-footer p-4">
                 <button onclick="logout()" class="btn btn-outline-danger btn-sm w-100">
-                    <i class="fas fa-sign-out-alt me-2"></i>Dil
+                    <i class="fas fa-sign-out-alt me-2"></i>Dil nga sistemi
                 </button>
             </div>
         </nav>
 
         <main class="content-area flex-grow-1 p-3 p-md-5">
-            <div class="container" style="max-width: 1000px;">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold mb-0">Përmbledhja, <span id="dashUser" class="text-primary text-capitalize">Përdorues</span>!</h2>
+            <div class="container" style="max-width: 1100px;">
+                
+                <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div>
+                        <span id="greetingText" class="text-muted fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">PËRSHËNDETJE</span>
+                        <h2 class="fw-bold mb-0 mt-1">Mirësevjen, <span id="dashUser" class="text-primary text-capitalize">Përdorues</span>!</h2>
+                    </div>
+                    <div class="d-none d-md-block">
+                        <a href="todo.html" class="btn btn-primary rounded-pill px-4">
+                            <i class="fas fa-plus me-2"></i>Mision i Ri
+                        </a>
+                    </div>
                 </div>
 
                 <div class="row g-4 mb-5">
                     <div class="col-md-4">
-                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-primary text-white">
-                            <h6 class="text-white-50">Gjithsej Detyra</h6>
-                            <h2 id="totalTasks" class="fw-bold">0</h2>
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-primary text-white h-100 card-stats">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-white-50 mb-0">Gjithsej Misione</h6>
+                                <i class="fas fa-list-ul fa-lg text-white-50"></i>
+                            </div>
+                            <h2 id="totalTasks" class="fw-bold mb-0">0</h2>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-success text-white">
-                            <h6 class="text-white-50">Të Përfunduara</h6>
-                            <h2 id="completedTasks" class="fw-bold">0</h2>
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-success text-white h-100 card-stats">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-white-50 mb-0">Të Përfunduara</h6>
+                                <i class="fas fa-check-circle fa-lg text-white-50"></i>
+                            </div>
+                            <h2 id="completedTasks" class="fw-bold mb-0">0</h2>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white card-stats">
-                            <h6 class="text-muted">Efiçenca</h6>
-                            <h2 id="efficiency" class="fw-bold text-primary">0%</h2>
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white h-100 card-stats">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-muted mb-0">Efiçenca Ditore</h6>
+                                <i class="fas fa-bolt fa-lg text-warning"></i>
+                            </div>
+                            <h2 id="efficiency" class="fw-bold text-primary mb-0">0%</h2>
                         </div>
                     </div>
                 </div>
 
                 <div class="row g-4">
                     <div class="col-lg-8">
-                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white recent-card">
-                            <h5 class="fw-bold mb-4">Aktivitetet e Fundit</h5>
-                            <div id="recentActivityList"></div>
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white recent-card h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold mb-0">Aktivitetet e Fundit</h5>
+                                <a href="todo.html" class="btn btn-link text-primary btn-sm p-0 text-decoration-none">Shih të gjitha</a>
+                            </div>
+                            <div id="recentActivityList">
+                                </div>
                         </div>
                     </div>
                     
                     <div class="col-lg-4">
-                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white category-card">
-                            <h5 class="fw-bold mb-4">Kategoritë</h5>
-                            <div id="categoryStats"></div>
+                        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white category-card h-100">
+                            <h5 class="fw-bold mb-4">Fokusimi sipas Kategorive</h5>
+                            <div id="categoryStats">
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -153,26 +218,21 @@
     </div>
 
     <script>
-        // Vendos emrin e përdoruesit në titull
-        const userName = localStorage.getItem('proTaskUserName');
-        if (userName) {
-            document.getElementById('dashUser').textContent = userName;
-        }
+        // Mbrojtja e fundit vizuale
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('auth-checked');
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-theme');
+            }
+        });
 
-        // Funksioni Logout
         function logout() {
             if(confirm("Dëshironi të dilni nga sistemi?")) {
                 localStorage.removeItem('proTaskUserName');
+                localStorage.removeItem('proTaskUserEmail');
                 window.location.href = "index.html";
             }
         }
-
-        // Dark Mode Check
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            document.body.classList.add('dark-theme');
-        }
-
-        document.body.classList.add('auth-checked');
     </script>
     <script src="dashboard.js"></script>
 </body>
