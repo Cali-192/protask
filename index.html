@@ -7,20 +7,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-   <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#4361ee">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2098/2098402.png">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%);
-            /* Rregullimi për qendërzim në mobile */
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0;
-            padding: 20px; /* Hapësirë që kutia mos të prekë bordet e telefonit */
+            padding: 20px;
         }
         
         .login-card {
@@ -29,11 +28,9 @@
             border-radius: 24px;
             padding: 40px;
             width: 100%;
-            /* Gjerësia elastike për telefon */
             max-width: 400px; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             text-align: center;
-            /* Siguron që kutia të mos zgjatet jashtë mase */
             margin: auto;
         }
 
@@ -56,7 +53,7 @@
             padding: 12px 15px;
             border: 1px solid #eee;
             margin-bottom: 20px;
-            font-size: 16px; /* Parandalon auto-zoom në iPhone */
+            font-size: 16px;
         }
 
         .btn-login {
@@ -75,7 +72,6 @@
             transform: translateY(-2px);
         }
 
-        /* Rregullim shtesë për ekrane shumë të vegjël */
         @media (max-width: 480px) {
             .login-card {
                 padding: 30px 20px;
@@ -108,11 +104,37 @@
     </div>
 
     <script>
-        // Nëse përdoruesi është i loguar, dërgoje direkt te dashboard
+        // 1. Mbrojtja: Nëse përdoruesi është i loguar, dërgoje direkt te dashboard
         if (localStorage.getItem('proTaskUserName')) {
             window.location.href = "dashboard.html";
         }
+
+        // 2. Logjika e Loginit
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const emailInput = document.getElementById('email').value.trim().toLowerCase();
+            const passInput = document.getElementById('password').value;
+
+            // Merri përdoruesit nga localStorage
+            const users = JSON.parse(localStorage.getItem('proTaskUsers')) || [];
+
+            // Gjej nëse ekziston ky përdorues me këtë fjalëkalim
+            const user = users.find(u => u.email.toLowerCase() === emailInput && u.pass === passInput);
+
+            if (user) {
+                // RUAJTJA E SESIONIT: Kjo është pjesa që të mundëson të mos regjistrohesh sërish
+                localStorage.setItem('proTaskUserName', user.name);
+                
+                // Fakultative: Mund të ruash edhe emailin nëse të duhet
+                localStorage.setItem('proTaskUserEmail', user.email);
+
+                alert("Mirëseerdhe, " + user.name + "!");
+                window.location.href = "dashboard.html";
+            } else {
+                alert("Email ose fjalëkalim i gabuar! Ju lutem provoni përsëri.");
+            }
+        });
     </script>
-    <script src="login.js"></script>
 </body>
 </html>
