@@ -18,6 +18,7 @@ if ("Notification" in window) {
 function init() {
     // Apliko Dark Mode nëse është aktiv
     if (localStorage.getItem('darkMode') === 'enabled') {
+        document.documentElement.classList.add('dark-theme');
         document.body.classList.add('dark-theme');
     }
 
@@ -185,7 +186,7 @@ function renderTasks(filter = 'all', searchTerm = '') {
             catClass = "bg-warning text-dark";
             catIcon = '<i class="fas fa-dumbbell me-1"></i>';
         } else if (t.category.includes("Namazi")) {
-            catClass = "bg-namazi text-white";
+            catClass = "bg-dark text-white"; // Përditësuar për stilin e zi
             catIcon = '<i class="fas fa-mosque me-1"></i>';
         } else if (t.category.includes("Studime")) {
             catClass = "bg-secondary text-white";
@@ -208,9 +209,15 @@ function renderTasks(filter = 'all', searchTerm = '') {
                 </div>
             </div>
             <div class="actions d-flex gap-2">
-                <button class="btn btn-link text-primary p-0" onclick="event.stopPropagation(); editTask(${t.id})">
-                    <i class="fas fa-edit"></i>
-                </button>
+                ${t.completed ? `
+                    <button class="btn btn-sm btn-outline-success border-0" onclick="event.stopPropagation(); moveToTomorrow(${t.id})" title="Përsërit nesër">
+                        <i class="fas fa-calendar-plus"></i> <span class="d-none d-md-inline">Nesër</span>
+                    </button>
+                ` : `
+                    <button class="btn btn-link text-primary p-0" onclick="event.stopPropagation(); editTask(${t.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `}
                 <button class="btn btn-link text-danger p-0" onclick="event.stopPropagation(); deleteTask(${t.id})">
                     <i class="fas fa-trash-alt"></i>
                 </button>
@@ -218,6 +225,33 @@ function renderTasks(filter = 'all', searchTerm = '') {
         `;
         list.appendChild(div);
     });
+}
+
+// FUNKSIONI PËR TË ZHPOSTUAR DETYRËN PËR NESËR
+function moveToTomorrow(id) {
+    tasks = tasks.map(t => {
+        if (t.id === id) {
+            // Marrim kohën aktuale të detyrës
+            let taskDate = new Date(t.time);
+            // Shtojmë 1 ditë
+            taskDate.setDate(taskDate.getDate() + 1);
+            
+            // Formatimi i dates së re në ISO string (YYYY-MM-DDTHH:MM)
+            const year = taskDate.getFullYear();
+            const month = String(taskDate.getMonth() + 1).padStart(2, '0');
+            const day = String(taskDate.getDate()).padStart(2, '0');
+            const hours = String(taskDate.getHours()).padStart(2, '0');
+            const minutes = String(taskDate.getMinutes()).padStart(2, '0');
+            
+            const newTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            return { ...t, time: newTime, completed: false, notified: false };
+        }
+        return t;
+    });
+    
+    saveAndRefresh();
+    alert("Misioni u shty për nesër me sukses!");
 }
 
 // 6. FUNKSIONET INTERAKTIVE
