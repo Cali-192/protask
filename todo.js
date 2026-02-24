@@ -2,7 +2,7 @@
 // MBROJTJA: Kontrollo nëse përdoruesi është i kyçur
 // ==========================================
 if (!localStorage.getItem('proTaskUserName')) {
-    window.location.href = "index.html"; // Ridrejtuar te faqja kryesore
+    window.location.href = "index.html"; 
 }
 
 // 1. Inicializimi i të dhënave
@@ -26,7 +26,7 @@ function init() {
     updateDate();
     greetUser(); 
     
-    // Kontrolli i Reminders çdo sekondë për saktësi maksimale (e rregulluar nga 10s)
+    // Kontrolli i Reminders çdo sekondë
     setInterval(checkReminders, 1000);
 
     // Dëgjuesi për tastin Enter në input
@@ -45,8 +45,7 @@ function greetUser() {
     const user = localStorage.getItem('proTaskUserName') || 'Përdorues';
     const welcomeUserElem = document.getElementById('welcomeUser');
     if (welcomeUserElem) {
-        // Përdorim innerHTML për të mbajtur badge-in e taskCount
-        welcomeUserElem.innerHTML = `Mirësevjen, ${user}! <span class="badge bg-primary-soft text-primary ms-2" id="taskCount">${tasks.length}</span>`;
+        welcomeUserElem.innerHTML = `${user}! <span class="badge bg-primary-soft text-primary ms-2" id="taskCount">${tasks.length}</span>`;
     }
 }
 
@@ -66,14 +65,14 @@ if (addBtn) {
         const textInput = document.getElementById('taskInput');
         const timeInput = document.getElementById('timeInput');
         const catInput = document.getElementById('categoryInput');
-        const editIdInput = document.getElementById('editTaskId'); // Fusha e fshehtë nga HTML
+        const editIdInput = document.getElementById('editTaskId');
 
         const text = textInput.value.trim();
         const time = timeInput.value;
         const cat = catInput.value;
 
         if (!text || !time) {
-            alert("Ju lutem plotësoni detyrën dhe orarin!");
+            alert("Misioni ka nevojë për një emër dhe një orar!");
             return;
         }
 
@@ -106,7 +105,7 @@ if (addBtn) {
     });
 }
 
-// FUNKSIONI I EDITIMIT (Plotëson formën)
+// FUNKSIONI I EDITIMIT
 function editTask(id) {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
@@ -160,8 +159,13 @@ function renderTasks(filter = 'all', searchTerm = '') {
         if (emptyState) emptyState.style.display = "none";
     }
 
-    // Renditja sipas kohës
-    filteredTasks.sort((a, b) => new Date(a.time) - new Date(b.time));
+    // RENDITJA: Të papërfunduara në fillim, pastaj sipas kohës
+    filteredTasks.sort((a, b) => {
+        if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1;
+        }
+        return new Date(a.time) - new Date(b.time);
+    });
 
     filteredTasks.forEach(t => {
         const div = document.createElement('div');
@@ -181,13 +185,16 @@ function renderTasks(filter = 'all', searchTerm = '') {
             catClass = "bg-warning text-dark";
             catIcon = '<i class="fas fa-dumbbell me-1"></i>';
         } else if (t.category.includes("Namazi")) {
-            catClass = "bg-dark text-white";
+            catClass = "bg-namazi text-white";
             catIcon = '<i class="fas fa-mosque me-1"></i>';
+        } else if (t.category.includes("Studime")) {
+            catClass = "bg-secondary text-white";
+            catIcon = '<i class="fas fa-book me-1"></i>';
         }
 
         div.innerHTML = `
-            <div class="d-flex align-items-center flex-grow-1">
-                <div class="custom-checkbox" onclick="toggleTask(${t.id})">
+            <div class="d-flex align-items-center flex-grow-1" onclick="toggleTask(${t.id})">
+                <div class="custom-checkbox ${t.completed ? 'checked' : ''}">
                     ${t.completed ? '<i class="fas fa-check fa-xs"></i>' : ''}
                 </div>
                 <div class="task-info">
@@ -201,10 +208,10 @@ function renderTasks(filter = 'all', searchTerm = '') {
                 </div>
             </div>
             <div class="actions d-flex gap-2">
-                <button class="btn btn-link text-primary p-0" onclick="editTask(${t.id})">
+                <button class="btn btn-link text-primary p-0" onclick="event.stopPropagation(); editTask(${t.id})">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-link text-danger p-0" onclick="deleteTask(${t.id})">
+                <button class="btn btn-link text-danger p-0" onclick="event.stopPropagation(); deleteTask(${t.id})">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -217,16 +224,16 @@ function renderTasks(filter = 'all', searchTerm = '') {
 function toggleTask(id) {
     tasks = tasks.map(t => {
         if (t.id === id) {
-            // Efekti Confetti vetëm kur kompletohet
-            if (!t.completed && typeof confetti === 'function') {
+            const newState = !t.completed;
+            if (newState && typeof confetti === 'function') {
                 confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.8 },
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.7 },
                     colors: ['#4361ee', '#4cc9f0', '#2ec4b6']
                 });
             }
-            return { ...t, completed: !t.completed };
+            return { ...t, completed: newState };
         }
         return t;
     });
@@ -234,7 +241,7 @@ function toggleTask(id) {
 }
 
 function deleteTask(id) {
-    if (confirm("A jeni i sigurt që dëshironi ta fshini këtë mision?")) {
+    if (confirm("Dëshironi ta fshini këtë mision përgjithmonë?")) {
         tasks = tasks.filter(t => t.id !== id);
         saveAndRefresh();
     }
@@ -250,10 +257,9 @@ if (searchInput) {
     });
 }
 
-// 7. REMINDERS DHE ALARMET (Rregulluar për saktësi sekondash)
+// 7. REMINDERS DHE ALARMET
 function checkReminders() {
     const now = new Date();
-    // Formatimi për krahasim: YYYY-MM-DDTHH:MM
     const currentStr = now.getFullYear() + "-" + 
         String(now.getMonth() + 1).padStart(2, '0') + "-" + 
         String(now.getDate()).padStart(2, '0') + "T" + 
@@ -269,16 +275,16 @@ function checkReminders() {
 
 function triggerAlarm(task) {
     task.notified = true;
-    saveAndRefresh();
+    localStorage.setItem('proTasksV2', JSON.stringify(tasks));
     
     if (alarmSound) {
-        alarmSound.currentTime = 0; // Rifillo nga fillimi
+        alarmSound.currentTime = 0;
         alarmSound.play().catch(() => console.log("Audio bllokuar nga browser-i"));
     }
 
     if (Notification.permission === "granted") {
-        new Notification("ProTask: Koha për " + task.text, {
-            body: `Misioni: ${task.text} - Stay Hard!`,
+        new Notification("ProTask: Koha mbaroi!", {
+            body: `Misioni: ${task.text} duhet të kryhet tani!`,
             icon: "https://cdn-icons-png.flaticon.com/512/2098/2098402.png"
         });
     }
@@ -305,7 +311,7 @@ function saveAndRefresh() {
     
     renderTasks(activeFilter, sInput ? sInput.value : '');
     updateProgress();
-    greetUser(); // Rifreskon numrin te badge-i
+    greetUser();
 }
 
 // 10. FUNKSIONI LOGOUT
@@ -326,9 +332,9 @@ init();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then(reg => {
-      console.log('ProTask Service Worker u regjistrua!', reg);
+      console.log('ProTask SW Online!');
     }).catch(err => {
-      console.log('Dështoi regjistrimi i SW', err);
+      console.log('SW Error', err);
     });
   });
 }
