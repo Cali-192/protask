@@ -15,8 +15,27 @@
     
     <style>
         /* Mbrojtja që faqja të mos shihet pa u verifikuar logini */
-        body { opacity: 0; transition: opacity 0.3s ease; }
+        body { opacity: 0; transition: opacity 0.3s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
         body.auth-checked { opacity: 1; }
+
+        /* Stilimi për Dark Mode në Settings */
+        body.dark-theme {
+            background-color: #0b0f1a !important;
+            color: #ffffff !important;
+        }
+        body.dark-theme .card {
+            background-color: #172035 !important;
+            border-color: rgba(255,255,255,0.1) !important;
+            color: white !important;
+        }
+        body.dark-theme .form-control {
+            background-color: #0b0f1a !important;
+            border-color: rgba(255,255,255,0.1) !important;
+            color: white !important;
+        }
+        body.dark-theme .text-muted {
+            color: #a0aec0 !important;
+        }
 
         /* Stilimi i Menusë Mobile */
         .mobile-nav {
@@ -33,6 +52,12 @@
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
         }
+        
+        body.dark-theme .mobile-nav {
+            background: #172035;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
         .nav-link-mobile {
             color: #888;
             text-decoration: none;
@@ -53,6 +78,7 @@
         /* Hapësirë për Mobile */
         @media (max-width: 991px) {
             body { padding-bottom: 90px; }
+            .content-area { padding-top: 20px !important; }
         }
 
         .btn-logout-mobile {
@@ -66,14 +92,21 @@
             align-items: center;
             justify-content: center;
         }
+        
+        body.dark-theme .btn-logout-mobile {
+            background: rgba(255, 71, 87, 0.1);
+        }
     </style>
 
     <script>
-        // MBROJTJA: Kontrolli i loginit para ngarkimit
+        // 1. MBROJTJA: Kontrolli i loginit para ngarkimit të DOM
         if (!localStorage.getItem('proTaskUserName')) {
             window.location.href = "index.html";
-        } else {
-            document.documentElement.classList.add('auth-checked');
+        }
+
+        // 2. DARK MODE: Aktivizimi i menjëhershëm
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.documentElement.classList.add('dark-theme');
         }
     </script>
 </head>
@@ -101,7 +134,7 @@
                     <a href="settings.html" class="nav-item active mb-2"><i class="fas fa-cog me-3"></i>Cilësimet</a>
                 </div>
             </div>
-            <div class="sidebar-footer p-4">
+            <div class="sidebar-footer p-4 mt-auto">
                 <button onclick="logout()" class="btn btn-outline-danger btn-sm w-100">
                     <i class="fas fa-sign-out-alt me-2"></i>Dil
                 </button>
@@ -113,24 +146,24 @@
                 <h2 class="fw-bold mb-4">Cilësimet</h2>
 
                 <div class="card border-0 shadow-sm p-4 rounded-4 mb-4">
-                    <h5 class="fw-bold mb-3"><i class="fas fa-user-circle me-2"></i>Profili</h5>
+                    <h5 class="fw-bold mb-3"><i class="fas fa-user-circle me-2 text-primary"></i>Profili</h5>
                     <div class="row g-3">
                         <div class="col-md-8">
                             <label class="form-label small fw-bold">Emri yt</label>
-                            <input type="text" id="userNameInput" class="form-control" placeholder="Shkruaj emrin tënd...">
+                            <input type="text" id="userNameInput" class="form-control form-control-lg border-2 shadow-none" placeholder="Shkruaj emrin tënd...">
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
-                            <button onclick="saveProfile()" class="btn btn-primary w-100">Ruaj Emrin</button>
+                            <button onclick="saveProfile()" class="btn btn-primary btn-lg w-100 rounded-3">Ruaj Emrin</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="card border-0 shadow-sm p-4 rounded-4 mb-4">
-                    <h5 class="fw-bold mb-3"><i class="fas fa-paint-brush me-2"></i>Personalizimi</h5>
+                    <h5 class="fw-bold mb-3"><i class="fas fa-paint-brush me-2 text-primary"></i>Personalizimi</h5>
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <h6 class="mb-0">Dark Mode</h6>
-                            <small class="text-muted">Ndrysho temën e aplikacionit</small>
+                            <h6 class="mb-0 fw-bold">Dark Mode</h6>
+                            <small class="text-muted">Mbroni sytë tuaj gjatë natës</small>
                         </div>
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="darkModeSwitch" style="width: 50px; height: 25px; cursor: pointer;">
@@ -140,8 +173,8 @@
 
                 <div class="card border-0 shadow-sm p-4 rounded-4 border-start border-danger border-4">
                     <h5 class="fw-bold mb-3 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Zona e Rrezikut</h5>
-                    <p class="text-muted small">Këto veprime nuk mund të kthehen mbrapsht. Të gjitha detyrat dhe progresi juaj do të fshihen.</p>
-                    <button onclick="clearAllData()" class="btn btn-outline-danger">
+                    <p class="text-muted small">Kujdes: Nëse fshini të dhënat, çdo mision, kategori dhe cilësim i ruajtur do të zhduket përgjithmonë.</p>
+                    <button onclick="clearAllData()" class="btn btn-outline-danger px-4">
                         <i class="fas fa-trash-alt me-2"></i>Fshij të gjitha të dhënat
                     </button>
                 </div>
@@ -169,12 +202,18 @@
     </div>
 
     <script>
-        // Shfaq emrin aktual kur ngarkohet faqja
+        // Shfaq emrin aktual dhe apliko Dark Mode kur ngarkohet DOM
         document.addEventListener('DOMContentLoaded', () => {
             const currentName = localStorage.getItem('proTaskUserName');
             if (currentName) {
                 document.getElementById('userNameInput').value = currentName;
             }
+            
+            // Sigurohu që klasa e Dark Mode është sinkronizuar
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-theme');
+            }
+            
             document.body.classList.add('auth-checked');
         });
 
@@ -182,6 +221,7 @@
         function logout() {
             if(confirm("Dëshironi të dilni?")) {
                 localStorage.removeItem('proTaskUserName');
+                localStorage.removeItem('proTaskUserEmail');
                 window.location.href = "index.html";
             }
         }
