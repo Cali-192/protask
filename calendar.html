@@ -22,22 +22,59 @@
             --fc-button-bg-color: #4361ee; 
             --fc-button-border-color: #4361ee; 
             --fc-button-hover-bg-color: #374fc7;
+            --fc-today-bg-color: rgba(67, 97, 238, 0.05);
         }
-        body { opacity: 0; transition: opacity 0.3s ease; }
+
+        body { opacity: 0; transition: opacity 0.3s ease; font-family: 'Plus Jakarta Sans', sans-serif; }
         body.auth-checked { opacity: 1; }
         
+        /* Dark Mode Support për Kalendarin */
+        body.dark-theme {
+            background-color: #0b0f1a !important;
+            color: #ffffff;
+        }
+
+        body.dark-theme .fc {
+            background: #172035;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        body.dark-theme .fc-td, 
+        body.dark-theme .fc-th,
+        body.dark-theme .fc-theme-standard td, 
+        body.dark-theme .fc-theme-standard th,
+        body.dark-theme .fc-scrollgrid {
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        body.dark-theme .fc-list-day-cushion,
+        body.dark-theme .fc-col-header-cell-cushion {
+            color: white;
+        }
+
         /* Stilimi i Kalendarit */
         .fc { 
             background: white; 
             padding: 20px; 
-            border-radius: 16px; 
+            border-radius: 20px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
             border: none; 
         }
-        .fc-event { cursor: pointer; border: none; padding: 2px 5px; border-radius: 4px; transition: transform 0.2s; }
-        .fc-event:hover { transform: scale(1.02); }
-        .fc-toolbar-title { font-weight: 700 !important; font-family: 'Plus Jakarta Sans', sans-serif; text-transform: capitalize; }
-        .fc-button-primary:not(:disabled).fc-button-active { background-color: #374fc7 !important; }
+
+        .fc-event { 
+            cursor: pointer; 
+            border: none; 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .fc-event:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .fc-toolbar-title { font-weight: 700 !important; text-transform: capitalize; }
+        .fc-button-primary { border-radius: 10px !important; text-transform: capitalize !important; }
 
         /* Stilimi i Menusë Mobile */
         .mobile-nav {
@@ -54,6 +91,12 @@
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
         }
+
+        body.dark-theme .mobile-nav {
+            background: #172035;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
         .nav-link-mobile {
             color: #888;
             text-decoration: none;
@@ -63,19 +106,15 @@
             font-size: 11px;
             font-weight: 500;
         }
-        .nav-link-mobile i {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-        .nav-link-mobile.active {
-            color: #4361ee;
-        }
 
-        /* Hapësirë për Mobile */
+        .nav-link-mobile i { font-size: 20px; margin-bottom: 4px; }
+        .nav-link-mobile.active { color: #4361ee; }
+
         @media (max-width: 991px) {
             body { padding-bottom: 90px; }
-            .fc-toolbar { flex-direction: column; gap: 10px; }
-            .fc-toolbar-title { font-size: 1.2rem !important; }
+            .fc-toolbar { flex-direction: column; gap: 15px; }
+            .fc-toolbar-title { font-size: 1.1rem !important; }
+            .content-area { padding-top: 10px !important; }
         }
 
         .btn-logout-mobile {
@@ -89,13 +128,21 @@
             align-items: center;
             justify-content: center;
         }
+        
+        body.dark-theme .btn-logout-mobile {
+            background: rgba(255, 71, 87, 0.1);
+        }
     </style>
 
     <script>
+        // Mbrojtja e menjëhershme
         if (!localStorage.getItem('proTaskUserName')) {
             window.location.href = "index.html";
-        } else {
-            document.documentElement.classList.add('auth-checked');
+        }
+
+        // Apliko Dark Mode para renderimit të body
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.documentElement.classList.add('dark-theme');
         }
     </script>
 </head>
@@ -134,8 +181,8 @@
             <div class="container" style="max-width: 1100px;">
                 <header class="mb-4 d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="fw-bold">Kalendari i Misioneve</h2>
-                        <p class="text-muted">Menaxho kohën tënde vizualisht</p>
+                        <h2 class="fw-bold mb-1">Kalendari i Misioneve</h2>
+                        <p class="text-muted">Menaxho kohën tënde vizualisht dhe me saktësi</p>
                     </div>
                 </header>
 
@@ -164,13 +211,21 @@
     </div>
 
     <script>
+        // Kontrolli i fundit për shfaqjen e body
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('auth-checked');
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-theme');
+            }
+        });
+
         function logout() {
-            if(confirm("Dëshironi të dilni?")) {
+            if(confirm("Dëshironi të dilni nga ProTask?")) {
                 localStorage.removeItem('proTaskUserName');
+                localStorage.removeItem('proTaskUserEmail');
                 window.location.href = "index.html";
             }
         }
-        document.body.classList.add('auth-checked');
     </script>
     <script src="calendar.js"></script>
 </body>
