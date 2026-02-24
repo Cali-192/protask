@@ -20,13 +20,25 @@
         body.auth-checked { opacity: 1; }
         .bg-primary-soft { background-color: rgba(67, 97, 238, 0.1); }
 
+        /* Stilimi për Dark Mode (në rast se skedari CSS vonohet) */
+        body.dark-theme {
+            background-color: #0b0f1a !important;
+            color: #ffffff !important;
+        }
+        body.dark-theme .input-card, 
+        body.dark-theme .mobile-header,
+        body.dark-theme .search-box input {
+            background-color: #172035 !important;
+            color: white !important;
+        }
+
         /* Rregullimi i Mobile Nav që të jetë fiks si te Dashboard */
         .mobile-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--sidebar-bg, white);
+            background: white;
             display: flex;
             justify-content: space-around;
             padding: 12px 0;
@@ -35,6 +47,12 @@
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
         }
+        
+        body.dark-theme .mobile-nav {
+            background: #172035;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
         .nav-link-mobile {
             color: #888;
             text-decoration: none;
@@ -75,6 +93,18 @@
         /* Klasa për kategorinë Namazi që të duket mirë */
         .bg-namazi { background-color: #1a202c !important; color: white !important; }
     </style>
+
+    <script>
+        // 1. KONTROLLI I MENJËHERSHËM (Para se të ngarkohet HTML)
+        if (!localStorage.getItem('proTaskUserName')) {
+            window.location.href = "index.html";
+        }
+
+        // 2. DARK MODE (Menjëherë)
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.documentElement.classList.add('dark-theme');
+        }
+    </script>
 </head>
 <body class="bg-light">
 
@@ -112,7 +142,7 @@
                 
                 <header class="mb-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
                     <div>
-                        <h2 class="fw-bold text-dark mb-1" id="welcomeUser">Misionet e Ditës</h2>
+                        <h2 class="fw-bold text-dark mb-1">Misionet e Ditës, <span id="welcomeUser" class="text-primary text-capitalize">Përdorues</span></h2>
                         <p id="dateDisplay" class="text-secondary small mb-0 font-monospace"></p>
                     </div>
                     
@@ -215,25 +245,23 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     
     <script>
-        // MBROJTJA: Kontrolli i loginit dhe Dark Mode para ngarkimit
-        (function() {
-            if (!localStorage.getItem('proTaskUserName')) {
-                window.location.href = "index.html";
-            } else {
-                document.documentElement.classList.add('auth-checked'); // Përdorim documentElement për shpejtësi
-                if (localStorage.getItem('darkMode') === 'enabled') {
-                    document.body.classList.add('dark-theme');
-                }
-            }
-        })();
-
+        // Vendos emrin e përdoruesit sapo faqja ngarkohet
         window.addEventListener('DOMContentLoaded', () => {
+            const userName = localStorage.getItem('proTaskUserName');
+            if (userName) {
+                document.getElementById('welcomeUser').textContent = userName;
+            }
+            
+            // Shfaq trupin e faqes pasi çdo gjë është gati
             document.body.classList.add('auth-checked');
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-theme');
+            }
         });
 
         // Funksioni Logout
         function logout() {
-            if(confirm("Dëshironi të dilni?")) {
+            if(confirm("Dëshironi të dilni nga sistemi?")) {
                 localStorage.removeItem('proTaskUserName');
                 localStorage.removeItem('proTaskUserEmail');
                 window.location.href = "index.html";
